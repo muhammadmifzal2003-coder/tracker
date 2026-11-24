@@ -12,6 +12,8 @@
   --desk: #E4E9F2;
   --line: 32px;
   --margin-x: 64px;
+  /* Room under the bottom menu for the host's "Powered by Netlify" badge (~36px tall, 10px from the bottom). */
+  --badge-space: 48px;
 }
 @media (prefers-color-scheme: dark) {
   :root {
@@ -32,7 +34,7 @@ body {
 /* The page is a sheet of ruled paper with a red margin line. */
 .paper {
   position: relative; max-width: 480px; min-height: 100dvh; margin: 0 auto;
-  padding: 24px 16px 120px 0;
+  padding: 24px 16px calc(120px + var(--badge-space)) 0;
   background-color: var(--paper);
   background-image:
     linear-gradient(to right, transparent calc(var(--margin-x) - 1px), var(--margin) calc(var(--margin-x) - 1px), var(--margin) calc(var(--margin-x) + 1px), transparent calc(var(--margin-x) + 1px)),
@@ -115,11 +117,11 @@ h1 small { font-family: var(--font-body); font-weight: 400; font-size: 14px; mar
 .row > a.a { font-family: var(--font-body); font-size: 14px; }
 
 .app-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px;
-  display: flex; gap: 20px; padding: 14px 16px calc(14px + env(safe-area-inset-bottom)) calc(var(--margin-x) + 14px);
+  display: flex; gap: 20px; padding: 14px 16px calc(14px + var(--badge-space) + env(safe-area-inset-bottom)) calc(var(--margin-x) + 14px);
   background: color-mix(in srgb, var(--paper) 92%, transparent); backdrop-filter: blur(6px); border-top: 1px solid var(--rule); font-size: 15px; }
 .app-nav a { color: var(--ink-soft); text-decoration: none; }
 .app-nav a[aria-current] { color: var(--ink); font-weight: 700; }
-.fab { position: fixed; bottom: calc(72px + env(safe-area-inset-bottom)); right: max(16px, calc(50% - 240px + 16px));
+.fab { position: fixed; bottom: calc(72px + var(--badge-space) + env(safe-area-inset-bottom)); right: max(16px, calc(50% - 240px + 16px));
   padding: 16px 24px; border-radius: 28px; box-shadow: 0 8px 20px rgba(214, 64, 74, .35); }
 
 /* ---- Expense sheet ---- */
