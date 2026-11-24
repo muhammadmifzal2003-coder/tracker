@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# Block commits that contain secrets.
+gitleaks protect --staged --no-banner --redact
