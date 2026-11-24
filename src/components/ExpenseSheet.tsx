@@ -5,6 +5,7 @@ import { useEffect, useRef, useState, useTransition } from 'react'
 import { addExpense, deleteExpense, updateExpense } from '@/app/actions/expenses'
 import type { Category, Expense } from '@/lib/core'
 import { todayKL } from '@/lib/periods'
+import { safeAction } from '@/lib/safe-action'
 
 type Props = {
   categories: Category[]
@@ -50,13 +51,13 @@ export function ExpenseSheet({ categories, expense, trigger, triggerClassName, t
       note: String(form.get('note') ?? ''),
     }
     start(async () => {
-      const r = expense ? await updateExpense(expense.id, input) : await addExpense(input)
+      const r = await safeAction<{ crossed: 80 | 100 | null } | void>(() => (expense ? updateExpense(expense.id, input) : addExpense(input)))
       if (!r.ok) {
         if (r.error === 'auth') router.push('/login')
         setError(r.message)
         return
       }
-      const crossed = !expense && r.data && 'crossed' in r.data ? (r.data as { crossed: 80 | 100 | null }).crossed : null
+      const crossed = !expense && r.data ? r.data.crossed : null
       if (crossed) {
         setNotice(NOTICE[crossed])
         setCategoryId('')
@@ -70,7 +71,7 @@ export function ExpenseSheet({ categories, expense, trigger, triggerClassName, t
   function remove() {
     if (!expense || !confirm('Padam belanja ini?')) return
     start(async () => {
-      const r = await deleteExpense(expense.id)
+      const r = await safeAction(() => deleteExpense(expense.id))
       if (!r.ok) {
         if (r.error === 'auth') router.push('/login')
         setError(r.message)

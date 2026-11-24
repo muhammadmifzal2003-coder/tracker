@@ -33,16 +33,19 @@ async function currentUser(sb: DB): Promise<{ id: string } | null> {
   return data.user ? { id: data.user.id } : null
 }
 
-const sum = (rows: { amount_sen: number }[] | null) => (rows ?? []).reduce((t, r) => t + r.amount_sen, 0)
+function must<T>(r: { data: T; error: { message: string } | null }): T {
+  if (r.error) throw new Error(`Supabase query failed: ${r.error.message}`)
+  return r.data
+}
 
 async function monthBudget(sb: DB): Promise<number | null> {
-  const { data } = await sb.from('budgets').select('monthly_amount_sen').maybeSingle()
+  const data = must(await sb.from('budgets').select('monthly_amount_sen').maybeSingle())
   return (data as { monthly_amount_sen: number } | null)?.monthly_amount_sen ?? null
 }
 
+/** Summed in SQL (migration 0002) so no API row limit can truncate it. */
 async function spentBetween(sb: DB, from: string, to: string): Promise<number> {
-  const { data } = await sb.from('expenses').select('amount_sen').gte('spent_on', from).lte('spent_on', to)
-  return sum(data as { amount_sen: number }[] | null)
+  return Number(must(await sb.rpc('expense_sum', { p_from: from, p_to: to })) ?? 0)
 }
 
 export async function addExpenseCore(sb: DB, input: ExpenseInput, now: Date): Promise<ActionResult<{ crossed: 80 | 100 | null }>> {
@@ -53,8 +56,15 @@ export async function addExpenseCore(sb: DB, input: ExpenseInput, now: Date): Pr
 
   const month = periodRange('month', now)
   const inThisMonth = e.spentOn >= month.from && e.spentOn <= month.to
-  const before = inThisMonth ? await spentBetween(sb, month.from, month.to) : 0
-  const budget = inThisMonth ? await monthBudget(sb) : null
+  let before = 0
+  let budget: number | null = null
+  if (inThisMonth) {
+    try {
+      ;[before, budget] = await Promise.all([spentBetween(sb, month.from, month.to), monthBudget(sb)])
+    } catch {
+      budget = null // the save matters more than the notice
+    }
+  }
 
   const { error } = await sb.from('expenses').insert({ category_id: e.categoryId, amount_sen: e.amountSen, spent_on: e.spentOn, note: e.note })
   if (error) return UNKNOWN
@@ -135,25 +145,22 @@ export async function getDashboardCore(sb: DB, now: Date): Promise<Dashboard | n
   const day = periodRange('day', now)
   const week = periodRange('week', now)
   const month = periodRange('month', now)
-  const from = week.from < month.from ? week.from : month.from
-  const to = week.to > month.to ? week.to : month.to
-
-  const [spent, budgetSen, totals, recent] = await Promise.all([
-    sb.from('expenses').select('amount_sen, spent_on').gte('spent_on', from).lte('spent_on', to),
+  const [today, weekSum, monthSum, budgetSen, totals, recent] = await Promise.all([
+    spentBetween(sb, day.from, day.to),
+    spentBetween(sb, week.from, week.to),
+    spentBetween(sb, month.from, month.to),
     monthBudget(sb),
-    sb.rpc('expense_totals_by_category', { p_from: month.from, p_to: month.to }),
-    sb.from('expenses').select(EXPENSE_COLUMNS).order('spent_on', { ascending: false }).order('created_at', { ascending: false }).limit(5),
+    sb.rpc('expense_totals_by_category', { p_from: month.from, p_to: month.to }).then(must),
+    sb.from('expenses').select(EXPENSE_COLUMNS).order('spent_on', { ascending: false }).order('created_at', { ascending: false }).limit(5).then(must),
   ])
 
-  const rows = (spent.data ?? []) as { amount_sen: number; spent_on: string }[]
-  const within = (r: { spent_on: string }, p: { from: string; to: string }) => r.spent_on >= p.from && r.spent_on <= p.to
   return {
-    today: sum(rows.filter((r) => within(r, day))),
-    week: sum(rows.filter((r) => within(r, week))),
-    month: sum(rows.filter((r) => within(r, month))),
+    today,
+    week: weekSum,
+    month: monthSum,
     budgetSen,
-    byCategory: ((totals.data ?? []) as { name: string; total_sen: number }[]).map((t) => ({ name: t.name, totalSen: Number(t.total_sen) })),
-    recent: ((recent.data ?? []) as unknown as ExpenseRow[]).map(toExpense),
+    byCategory: ((totals ?? []) as { name: string; total_sen: number }[]).map((t) => ({ name: t.name, totalSen: Number(t.total_sen) })),
+    recent: ((recent ?? []) as unknown as ExpenseRow[]).map(toExpense),
   }
 }
 

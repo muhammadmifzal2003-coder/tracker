@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import { useState, useTransition } from 'react'
 import { addCategory, deleteCategory, moveExpensesAndDelete } from '@/app/actions/categories'
 import type { ActionResult, Category } from '@/lib/core'
+import { safeAction } from '@/lib/safe-action'
 
 export function CategoryManager({ categories }: { categories: Category[] }) {
   const router = useRouter()
@@ -20,13 +21,13 @@ export function CategoryManager({ categories }: { categories: Category[] }) {
   }
 
   function add(form: FormData) {
-    start(async () => handle(await addCategory(String(form.get('name') ?? '')), () => setFormKey((k) => k + 1)))
+    start(async () => handle(await safeAction(() => addCategory(String(form.get('name') ?? ''))), () => setFormKey((k) => k + 1)))
   }
 
   function remove(c: Category) {
     if (!confirm(`Padam kategori "${c.name}"?`)) return
     start(async () => {
-      const r = await deleteCategory(c.id)
+      const r = await safeAction(() => deleteCategory(c.id))
       if (!r.ok && r.error === 'in_use') {
         setInUse(c)
         setTarget(categories.find((x) => x.id !== c.id)?.id ?? '')
@@ -39,7 +40,7 @@ export function CategoryManager({ categories }: { categories: Category[] }) {
 
   function moveAndDelete() {
     if (!inUse || !target) return
-    start(async () => handle(await moveExpensesAndDelete(inUse.id, target), () => setInUse(null)))
+    start(async () => handle(await safeAction(() => moveExpensesAndDelete(inUse.id, target)), () => setInUse(null)))
   }
 
   return (

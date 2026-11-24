@@ -17,6 +17,7 @@ beforeAll(async () => {
   db = new PGlite()
   await db.exec(readFileSync(path.join(dir, '__tests__/stub-auth.sql'), 'utf8'))
   await db.exec(readFileSync(path.join(dir, 'migrations/0001_init.sql'), 'utf8'))
+  await db.exec(readFileSync(path.join(dir, 'migrations/0002_expense_sum.sql'), 'utf8'))
   await db.exec(`insert into auth.users values ('${A}'), ('${B}');`)
 }, 60_000)
 
@@ -71,5 +72,13 @@ describe('0001_init migration', () => {
     expect(rows).toEqual([{ name: 'Makan', total_sen: 850 }])
     const b = await as(B, () => db.query(`select * from public.expense_totals_by_category('2026-11-01', '2026-11-30')`))
     expect(b.rows).toHaveLength(0)
+  })
+
+  test('expense_sum adds up only the caller in the range, in SQL (no row cap)', async () => {
+    const a = await as(A, () => db.query<{ s: number }>(`select public.expense_sum('2026-11-01', '2026-11-30') as s`))
+    expect(a.rows[0].s).toBe(850)
+    const b = await as(B, () => db.query<{ s: number }>(`select public.expense_sum('2026-11-01', '2026-11-30') as s`))
+    expect(b.rows[0].s).toBe(0)
+    await expect(as(null, () => db.query(`select public.expense_sum('2026-11-01', '2026-11-30')`))).rejects.toThrow(/permission denied/)
   })
 })

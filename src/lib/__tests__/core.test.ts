@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 import { fakeSupabase } from '@/test/fake-supabase'
-import { addExpenseCore, deleteCategoryCore, setBudgetCore } from '../core'
+import { addExpenseCore, deleteCategoryCore, getDashboardCore, setBudgetCore } from '../core'
 
 const CAT = '3f2b6f1e-1c1a-4a8e-9d43-2b8f1e0c9a11'
 const NOW = new Date('2026-11-24T04:00:00Z') // 12:00 MYT
@@ -24,10 +24,8 @@ describe('addExpenseCore', () => {
   test('reports crossing 80% when the save takes the month from 7000 to 8500 sen of 10000', async () => {
     const { client, calls } = fakeSupabase({
       user: { id: 'u1' },
-      results: {
-        'expenses.select': { data: [{ amount_sen: 4000 }, { amount_sen: 3000 }] },
-        'budgets.select': { data: { monthly_amount_sen: 10000 } },
-      },
+      results: { 'budgets.select': { data: { monthly_amount_sen: 10000 } } },
+      rpc: { expense_sum: { data: 7000 } },
     })
     const r = await addExpenseCore(client, input('15'), NOW)
     expect(r).toEqual({ ok: true, data: { crossed: 80 } })
@@ -38,7 +36,8 @@ describe('addExpenseCore', () => {
   test('an expense dated in another month never triggers a notice', async () => {
     const { client } = fakeSupabase({
       user: { id: 'u1' },
-      results: { 'expenses.select': { data: [{ amount_sen: 9999 }] }, 'budgets.select': { data: { monthly_amount_sen: 10000 } } },
+      results: { 'budgets.select': { data: { monthly_amount_sen: 10000 } } },
+      rpc: { expense_sum: { data: 9999 } },
     })
     const r = await addExpenseCore(client, input('500', '2026-10-31'), NOW)
     expect(r).toEqual({ ok: true, data: { crossed: null } })
@@ -66,5 +65,18 @@ describe('setBudgetCore', () => {
     const r = await setBudgetCore(client, '900')
     expect(r).toEqual({ ok: true, data: undefined })
     expect(calls.find((c) => c.op === 'upsert')?.args[0]).toMatchObject({ user_id: 'u1', monthly_amount_sen: 90000 })
+  })
+})
+
+describe('getDashboardCore', () => {
+  test('a failed query is an error, not a silent RM0.00', async () => {
+    const { client } = fakeSupabase({ user: { id: 'u1' }, rpc: { expense_sum: { error: { message: 'function does not exist' } } } })
+    await expect(getDashboardCore(client, NOW)).rejects.toThrow()
+  })
+
+  test('totals come from the SQL sum, not from fetched rows', async () => {
+    const { client } = fakeSupabase({ user: { id: 'u1' }, rpc: { expense_sum: { data: 123456 } }, results: { 'budgets.select': { data: null } } })
+    const d = await getDashboardCore(client, NOW)
+    expect(d).toMatchObject({ today: 123456, week: 123456, month: 123456, budgetSen: null })
   })
 })

@@ -11,7 +11,7 @@ Stack: Next.js · Supabase (Postgres + Auth + Row Level Security) · Tailwind ·
 ## Setup Supabase (sekali sahaja)
 
 1. Daftar di <https://supabase.com> dan buat projek baru (pelan percuma).
-2. **SQL Editor**: tampal isi `supabase/migrations/0001_init.sql`, kemudian tekan **Run**.
+2. **SQL Editor**: tampal isi `supabase/migrations/0001_init.sql` dan tekan **Run**. Kemudian buat perkara yang sama untuk `0002_expense_sum.sql`.
 3. Masih dalam SQL Editor: jalankan `supabase/checks/0001_rls_check.sql`.
    Hasil yang betul: `rls_tables = 3`, `policies = 12`.
 4. **Authentication → Sign In / Providers → Email**: matikan **"Allow new users to sign up"**.

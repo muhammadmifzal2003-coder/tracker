@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation'
 import { useState, useTransition } from 'react'
 import { setBudget } from '@/app/actions/budget'
+import { safeAction } from '@/lib/safe-action'
 
 export function BudgetForm({ currentSen }: { currentSen: number | null }) {
   const router = useRouter()
@@ -11,7 +12,7 @@ export function BudgetForm({ currentSen }: { currentSen: number | null }) {
 
   function submit(form: FormData) {
     start(async () => {
-      const r = await setBudget(String(form.get('budget') ?? ''))
+      const r = await safeAction(() => setBudget(String(form.get('budget') ?? '')))
       if (!r.ok && r.error === 'auth') router.push('/login')
       setMsg(r.ok ? { ok: true, text: 'Bajet disimpan.' } : { ok: false, text: r.message })
     })

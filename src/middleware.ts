@@ -20,7 +20,7 @@ export async function middleware(request: NextRequest) {
 
   // getUser() validates the token with Supabase; do not trust getSession() here.
   const { data: { user } } = await supabase.auth.getUser()
-  const target = requiredRedirect(request.nextUrl.pathname, Boolean(user))
+  const target = requiredRedirect(request.nextUrl.pathname, Boolean(user), { isServerAction: request.headers.has('next-action') })
   if (target) {
     const redirect = NextResponse.redirect(new URL(target, request.url))
     response.cookies.getAll().forEach((c) => redirect.cookies.set(c))

@@ -18,4 +18,8 @@ describe('requiredRedirect', () => {
     expect(requiredRedirect('/login-fake', false)).toBe('/login')
     expect(requiredRedirect('/loginx/../', false)).toBe('/login')
   })
+  test('server action calls are never redirected, so the action can answer "auth" itself', () => {
+    expect(requiredRedirect('/', false, { isServerAction: true })).toBeNull()
+    expect(requiredRedirect('/settings', false, { isServerAction: true })).toBeNull()
+  })
 })
