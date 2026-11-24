@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Buku Belanja Mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #F7F9FC;
+    --rule: #C9D6EC;
+    --margin: #D6404A;
+    --ink: #1E2A4F;
+    --ink-soft: #5A6688;
+    --ok: #2E8B66;
+    --warn: #D99A00;
+    --desk: #E4E9F2;
+    --line: 32px;
+    --margin-x: 64px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #16203A; --rule: #2B3A5E; --margin: #E5636B; --ink: #EAF0FB;
+      --ink-soft: #A4B0CC; --ok: #4CC08F; --warn: #F0B532; --desk: #0E1528;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--desk); color: var(--ink);
+    font-family: "Atkinson Hyperlegible", system-ui, sans-serif; font-size: 16px;
+  }
+  .board { display: flex; flex-wrap: wrap; gap: 40px; justify-content: center; padding: 40px 16px; }
+  .caption { width: 100%; text-align: center; color: var(--ink-soft); margin: 0 0 -16px; font-size: 15px; }
+  .phone {
+    position: relative; width: 390px; max-width: 100%; height: 844px; overflow: hidden;
+    border-radius: 36px; box-shadow: 0 24px 60px rgba(30, 42, 79, .18);
+    background-color: var(--paper);
+    background-image:
+      linear-gradient(to right, transparent calc(var(--margin-x) - 1px), var(--margin) calc(var(--margin-x) - 1px), var(--margin) calc(var(--margin-x) + 1px), transparent calc(var(--margin-x) + 1px)),
+      repeating-linear-gradient(to bottom, transparent 0 calc(var(--line) - 1px), var(--rule) calc(var(--line) - 1px) var(--line));
+    background-position: 0 0, 0 16px;
+  }
+  .page { padding: 48px 20px 0 0; }
+  .row { display: grid; grid-template-columns: var(--margin-x) 1fr auto; align-items: end; min-height: var(--line); }
+  .row > .m { padding: 0 10px 6px 12px; font-size: 13px; color: var(--ink-soft); text-align: right; }
+  .row > .t { padding: 0 0 6px 14px; }
+  .row > .a { padding-bottom: 6px; font-family: "Bricolage Grotesque"; font-weight: 500; font-variant-numeric: tabular-nums; }
+
+  .month { font-family: "Bricolage Grotesque"; font-weight: 700; font-size: 18px; }
+  .month small { font-family: "Atkinson Hyperlegible"; font-weight: 400; color: var(--ink-soft); font-size: 14px; margin-left: 6px; }
+
+  .baki { display: grid; grid-template-columns: var(--margin-x) 1fr; height: calc(var(--line) * 3); align-items: end; }
+  .baki .t { padding: 0 0 4px 14px; }
+  .baki .label { font-size: 15px; color: var(--ink-soft); }
+  .baki .num {
+    font-family: "Bricolage Grotesque"; font-weight: 800; font-size: 60px; line-height: 64px;
+    letter-spacing: -0.02em; font-variant-numeric: tabular-nums;
+  }
+  .baki .num .rm { font-size: 26px; font-weight: 700; vertical-align: 26px; margin-right: 4px; }
+  .of { color: var(--ink-soft); font-size: 15px; } .of b { font-family: "Bricolage Grotesque"; font-weight: 500; }
+
+  /* Budget bar: the margin line turns sideways and fills */
+  .bar { position: relative; height: var(--line); margin-left: var(--margin-x); }
+  .bar::before { content: ""; position: absolute; left: 14px; right: 0; bottom: 10px; height: 6px; background: var(--rule); border-radius: 3px; }
+  .bar span { position: absolute; left: 14px; bottom: 10px; height: 6px; border-radius: 3px; background: var(--ok); width: calc((100% - 14px) * .68); }
+  .bar span.warn { background: var(--warn); }
+  .bar i { position: absolute; bottom: 4px; width: 2px; height: 18px; background: var(--ink-soft); left: calc(14px + (100% - 14px) * .8); }
+
+  .totals { display: grid; grid-template-columns: var(--margin-x) repeat(3, 1fr); min-height: calc(var(--line) * 2); align-items: end; }
+  .totals div { padding: 0 0 6px 14px; }
+  .totals b { display: block; font-family: "Bricolage Grotesque"; font-weight: 700; font-size: 18px; font-variant-numeric: tabular-nums; }
+  .totals em { font-style: normal; font-size: 13px; color: var(--ink-soft); }
+
+  h2 { font-family: "Bricolage Grotesque"; font-weight: 700; font-size: 17px; margin: 0; }
+  .cat .t { display: flex; align-items: center; gap: 10px; }
+  .cat .t span:first-child { width: 112px; flex: none; font-size: 15px; }
+  .cat .t .fill { height: 12px; border-radius: 2px; background: var(--ink); opacity: .82; }
+  .cat .a { font-size: 15px; }
+  .exp .t { font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .exp .t small { color: var(--ink-soft); font-size: 13px; margin-left: 6px; }
+  .exp .a { font-weight: 700; }
+  .fields input, .amount input { font-variant-numeric: tabular-nums; } #d { font-family: "Bricolage Grotesque"; }
+  .notice b { font-family: "Bricolage Grotesque"; }
+  .link { color: var(--ink); font-size: 14px; text-decoration: underline; text-underline-offset: 3px; }
+
+  .fab {
+    position: absolute; right: 20px; bottom: 84px; border: 0; cursor: pointer;
+    background: var(--margin); color: #fff; font: 700 17px "Atkinson Hyperlegible";
+    padding: 16px 24px; border-radius: 28px; box-shadow: 0 8px 20px rgba(214, 64, 74, .35);
+  }
+  .fab:focus-visible, button:focus-visible, input:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+  .nav { position: absolute; left: 0; bottom: 34px; padding-left: calc(var(--margin-x) + 14px); display: flex; gap: 20px; font-size: 15px; }
+  .nav a { color: var(--ink-soft); text-decoration: none; }
+  .nav a[aria-current] { color: var(--ink); font-weight: 700; }
+
+  /* Add-expense sheet */
+  .scrim { position: absolute; inset: 0; background: rgba(30, 42, 79, .35); }
+  .sheet {
+    position: absolute; left: 0; right: 0; bottom: 0; border-radius: 24px 24px 0 0;
+    background: var(--paper); padding: 12px 20px 28px; box-shadow: 0 -12px 40px rgba(30, 42, 79, .2);
+  }
+  .grab { width: 44px; height: 5px; border-radius: 3px; background: var(--rule); margin: 0 auto 14px; }
+  .sheet h2 { font-size: 20px; margin-bottom: 12px; }
+  .amount { display: flex; align-items: baseline; gap: 6px; border-bottom: 2px solid var(--margin); padding-bottom: 6px; }
+  .amount span { font: 700 26px "Bricolage Grotesque"; color: var(--ink-soft); }
+  .amount input { border: 0; background: none; color: var(--ink); width: 100%; font: 800 52px "Bricolage Grotesque"; letter-spacing: -0.02em; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0; }
+  .chips button { border: 1.5px solid var(--rule); background: transparent; color: var(--ink); padding: 9px 14px; border-radius: 20px; font: 15px "Atkinson Hyperlegible"; }
+  .chips button[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .fields { display: grid; grid-template-columns: 1fr 1.4fr; gap: 12px; }
+  .fields label { font-size: 13px; color: var(--ink-soft); display: block; margin-bottom: 4px; }
+  .fields input { width: 100%; padding: 11px 12px; border: 1.5px solid var(--rule); border-radius: 10px; background: transparent; color: var(--ink); font: 16px "Atkinson Hyperlegible"; }
+  .notice { margin: 16px 0 0; padding: 10px 12px; border-left: 4px solid var(--warn); background: color-mix(in srgb, var(--warn) 14%, transparent); font-size: 15px; }
+  .save { margin-top: 18px; width: 100%; border: 0; background: var(--margin); color: #fff; font: 700 18px "Atkinson Hyperlegible"; padding: 16px; border-radius: 14px; }
+</style>
+</head>
+<body>
+<div class="board">
+  <p class="caption">Kiri: Dashboard. Kanan: "Tambah belanja", selepas simpan yang melepasi 80% bajet.</p>
+
+  <!-- Screen 1: Dashboard -->
+  <section class="phone" aria-label="Dashboard">
+    <div class="page">
+      <div class="row"><span class="m"></span><span class="t month">November 2026 <small>Selasa, 24 Nov</small></span><span></span></div>
+
+      <div class="baki">
+        <span></span>
+        <div class="t">
+          <div class="label">Baki bulan ini</div>
+          <div class="num"><span class="rm">RM</span>287.60</div>
+        </div>
+      </div>
+      <div class="row"><span class="m"></span><span class="t of">Dah guna <b>RM612.40</b> daripada <b>RM900</b></span><span></span></div>
+      <div class="bar" role="img" aria-label="68% bajet digunakan. Tanda pada 80%."><span></span><i></i></div>
+
+      <div class="totals">
+        <span></span>
+        <div><b>RM18.50</b><em>Hari ini</em></div>
+        <div><b>RM104.20</b><em>Minggu ini</em></div>
+        <div><b>RM612.40</b><em>Bulan ini</em></div>
+      </div>
+
+      <div class="row"><span class="m"></span><h2 class="t">Ikut kategori</h2><span></span></div>
+      <div class="row cat"><span class="m"></span><span class="t"><span>Makan</span><span class="fill" style="width:100px"></span></span><span class="a">268.50</span></div>
+      <div class="row cat"><span class="m"></span><span class="t"><span>Pengangkutan</span><span class="fill" style="width:36px"></span></span><span class="a">96.00</span></div>
+      <div class="row cat"><span class="m"></span><span class="t"><span>Bil &amp; Internet</span><span class="fill" style="width:28px"></span></span><span class="a">75.00</span></div>
+      <div class="row cat"><span class="m"></span><span class="t"><span>Belajar</span><span class="fill" style="width:24px"></span></span><span class="a">64.90</span></div>
+      <div class="row cat"><span class="m"></span><span class="t"><span>Lain (2)</span><span class="fill" style="width:40px"></span></span><span class="a">108.00</span></div>
+
+      <div class="row"><span class="m"></span><h2 class="t">Terkini</h2><a class="a link" href="#">Lihat semua</a></div>
+      <div class="row exp"><span class="m">24/11</span><span class="t">Nasi lemak, teh tarik<small>Makan</small></span><span class="a">8.50</span></div>
+      <div class="row exp"><span class="m">24/11</span><span class="t">Grab ke kampus<small>Pengangkutan</small></span><span class="a">10.00</span></div>
+      <div class="row exp"><span class="m">23/11</span><span class="t">Top-up data<small>Bil &amp; Internet</small></span><span class="a">30.00</span></div>
+      <div class="row exp"><span class="m">23/11</span><span class="t">Fotostat nota<small>Belajar</small></span><span class="a">4.90</span></div>
+      <div class="row exp"><span class="m">22/11</span><span class="t">Wayang<small>Hiburan</small></span><span class="a">18.00</span></div>
+    </div>
+    <nav class="nav"><a href="#" aria-current="page">Utama</a><a href="#">Senarai</a><a href="#">Tetapan</a></nav>
+    <button class="fab">+ Tambah</button>
+  </section>
+
+  <!-- Screen 2: Add expense sheet -->
+  <section class="phone" aria-label="Tambah belanja">
+    <div class="page">
+      <div class="row"><span class="m"></span><span class="t month">November 2026 <small>Selasa, 24 Nov</small></span><span></span></div>
+      <div class="baki"><span></span><div class="t"><div class="label">Baki bulan ini</div><div class="num"><span class="rm">RM</span>162.60</div></div></div>
+    </div>
+    <div class="scrim"></div>
+    <div class="sheet" role="dialog" aria-label="Tambah belanja">
+      <div class="grab"></div>
+      <h2>Tambah belanja</h2>
+      <div class="amount"><span>RM</span><input inputmode="decimal" value="125,00" aria-label="Jumlah"></div>
+      <div class="chips" role="group" aria-label="Kategori">
+        <button aria-pressed="false">Makan</button>
+        <button aria-pressed="false">Pengangkutan</button>
+        <button aria-pressed="false">Sewa</button>
+        <button aria-pressed="false">Bil &amp; Internet</button>
+        <button aria-pressed="true">Belajar</button>
+        <button aria-pressed="false">Hiburan</button>
+        <button aria-pressed="false">Shopping</button>
+        <button aria-pressed="false">Lain-lain</button>
+      </div>
+      <div class="fields">
+        <div><label for="d">Tarikh</label><input id="d" value="24/11/2026"></div>
+        <div><label for="n">Nota (pilihan)</label><input id="n" value="Buku rujukan"></div>
+      </div>
+      <p class="notice" role="status">Disimpan. Anda dah guna <b>82%</b> bajet bulan ini.</p>
+      <button class="save">Simpan belanja</button>
+    </div>
+  </section>
+</div>
+</body>
+</html>
