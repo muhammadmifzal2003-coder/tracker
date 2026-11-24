@@ -40,14 +40,19 @@ git config core.hooksPath .githooks   # gitleaks pada setiap commit
 - Row Level Security pada semua jadual: setiap baris hanya boleh dibaca oleh pemiliknya.
 - Tiada halaman sign-up. Pendaftaran ditutup dalam Supabase.
 
-## Deploy ke Vercel (untuk buka dari telefon)
+## Deploy ke Netlify (untuk buka dari telefon)
 
-1. Pastikan kod sudah di-push ke repo GitHub private anda.
-2. Di <https://vercel.com>: **Add New → Project → Import** repo `expense-tracker`.
-3. **Environment Variables**: masukkan `NEXT_PUBLIC_SUPABASE_URL` dan `NEXT_PUBLIC_SUPABASE_ANON_KEY`, kemudian **Deploy**.
-   (Kedua-duanya mesti diisi *sebelum* build, kerana CSP dibina dengan URL Supabase.)
-4. Supabase → **Authentication → URL Configuration**: set **Site URL** kepada URL Vercel anda (contoh `https://expense-tracker-xxx.vercel.app`).
-5. Buka URL itu di telefon, log masuk, dan tambah satu belanja. Di Chrome/Safari, pilih "Add to Home Screen" supaya ia jadi macam app.
+Live: <https://tracker-1rr0.netlify.app>
+
+1. <https://app.netlify.com>: **Add new project → Import an existing project → GitHub →** pilih repo `tracker`.
+2. Biarkan build command `npm run build` (Netlify mengesan Next.js secara automatik).
+3. **Environment variables**: `NEXT_PUBLIC_SUPABASE_URL` (tanpa `/rest/v1/`) dan `NEXT_PUBLIC_SUPABASE_ANON_KEY` (anon atau publishable key).
+   Kedua-duanya mesti diisi *sebelum* build, kerana CSP dibina dengan URL Supabase.
+4. **Site configuration → Access & security → Visitor access**: tetapkan **No protection**. App ada login sendiri.
+5. Supabase → **Authentication → URL Configuration**: set **Site URL** kepada URL Netlify.
+6. Setiap push ke `main` akan deploy semula secara automatik.
+
+> Vercel juga boleh digunakan dengan langkah yang sama, tetapi pendaftarannya mungkin meminta nombor telefon.
 
 ## Struktur
 
