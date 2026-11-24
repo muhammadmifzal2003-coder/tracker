@@ -1,9 +1,22 @@
 import type { Metadata, Viewport } from 'next'
-import { Atkinson_Hyperlegible, Bricolage_Grotesque } from 'next/font/google'
+import localFont from 'next/font/local'
 import './globals.css'
 
-const display = Bricolage_Grotesque({ subsets: ['latin'], weight: ['500', '700', '800'], variable: '--font-display' })
-const body = Atkinson_Hyperlegible({ subsets: ['latin'], weight: ['400', '700'], variable: '--font-body' })
+// Self-hosted (from @fontsource) so builds need no network and CSP stays 'self'.
+const display = localFont({
+  src: '../../node_modules/@fontsource-variable/bricolage-grotesque/files/bricolage-grotesque-latin-wght-normal.woff2',
+  weight: '200 800',
+  variable: '--font-display',
+  display: 'swap',
+})
+const body = localFont({
+  src: [
+    { path: '../../node_modules/@fontsource/atkinson-hyperlegible/files/atkinson-hyperlegible-latin-400-normal.woff2', weight: '400' },
+    { path: '../../node_modules/@fontsource/atkinson-hyperlegible/files/atkinson-hyperlegible-latin-700-normal.woff2', weight: '700' },
+  ],
+  variable: '--font-body',
+  display: 'swap',
+})
 
 export const metadata: Metadata = {
   title: 'Buku Belanja',
