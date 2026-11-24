@@ -1,36 +1,41 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Buku Belanja: pengira perbelanjaan peribadi
 
-## Getting Started
+Web app untuk seorang pengguna merekod perbelanjaan dalam RM, melihat jumlah harian, mingguan dan bulanan, dan mendapat amaran apabila bajet bulanan hampir habis.
 
-First, run the development server:
+Stack: Next.js · Supabase (Postgres + Auth + Row Level Security) · Tailwind · Vitest
+
+- Design: `docs/superpowers/specs/2026-11-24-expense-tracker-design.md`
+- Plan: `docs/superpowers/plans/2026-11-24-expense-tracker.md`
+- Mockup: `docs/design/mockup.png`
+
+## Setup Supabase (sekali sahaja)
+
+1. Daftar di <https://supabase.com> dan buat projek baru (pelan percuma).
+2. **SQL Editor**: tampal isi `supabase/migrations/0001_init.sql`, kemudian tekan **Run**.
+3. Masih dalam SQL Editor: jalankan `supabase/checks/0001_rls_check.sql`.
+   Hasil yang betul: `rls_tables = 3`, `policies = 12`.
+4. **Authentication → Sign In / Providers → Email**: matikan **"Allow new users to sign up"**.
+5. **Authentication → Users → Add user**: masukkan e-mel dan kata laluan anda, dan tandakan **Auto Confirm User**.
+6. **Project Settings → API**: salin **Project URL** dan **anon public key**.
+
+> ⚠️ Jangan sekali-kali guna kunci `service_role` dalam app ini.
+
+## Jalankan secara lokal
 
 ```bash
+cp .env.example .env.local    # isi URL dan anon key dari langkah 6
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Keselamatan
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm test        # unit test + ujian RLS (PGlite)
+npm run scan    # Semgrep + gitleaks — wajib bersih sebelum push
+git config core.hooksPath .githooks   # gitleaks pada setiap commit
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `.env.local` di-ignore oleh git. Hanya `.env.example` (tanpa nilai) yang di-commit.
+- Row Level Security pada semua jadual: setiap baris hanya boleh dibaca oleh pemiliknya.
+- Tiada halaman sign-up. Pendaftaran ditutup dalam Supabase.
