@@ -9,14 +9,7 @@ const display = localFont({
   variable: '--font-display',
   display: 'swap',
 })
-const body = localFont({
-  src: [
-    { path: '../../node_modules/@fontsource/atkinson-hyperlegible/files/atkinson-hyperlegible-latin-400-normal.woff2', weight: '400' },
-    { path: '../../node_modules/@fontsource/atkinson-hyperlegible/files/atkinson-hyperlegible-latin-700-normal.woff2', weight: '700' },
-  ],
-  variable: '--font-body',
-  display: 'swap',
-})
+// One family for the whole app (design A): no slashed zeros in amounts.
 
 export const metadata: Metadata = {
   title: 'Buku Belanja',
@@ -32,7 +25,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="ms" className={`${display.variable} ${body.variable}`}>
+    <html lang="ms" className={display.variable}>
       <body>{children}</body>
     </html>
   )

@@ -8,7 +8,7 @@ const initial: LoginState = { error: null }
 export function LoginForm() {
   const [state, action, pending] = useActionState(signIn, initial)
   return (
-    <form action={action} className="indent" style={{ display: 'grid', gap: 16, marginTop: 24, maxWidth: 380 }}>
+    <form action={action} className="card login-card">
       <div className="field">
         <label htmlFor="email">E-mel</label>
         <input id="email" name="email" type="email" autoComplete="email" required />
@@ -18,7 +18,7 @@ export function LoginForm() {
         <input id="password" name="password" type="password" autoComplete="current-password" required />
       </div>
       {state.error && <p className="error" role="alert">{state.error}</p>}
-      <button className="btn" type="submit" disabled={pending}>{pending ? 'Sedang log masuk…' : 'Log masuk'}</button>
+      <button className="btn save" style={{ marginTop: 0 }} type="submit" disabled={pending}>{pending ? 'Sedang log masuk…' : 'Log masuk'}</button>
     </form>
   )
 }

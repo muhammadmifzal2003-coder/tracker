@@ -19,7 +19,7 @@ export function BudgetForm({ currentSen }: { currentSen: number | null }) {
   }
 
   return (
-    <form action={submit} className="indent settings-block">
+    <form action={submit} className="card card-pad">
       <div className="field">
         <label htmlFor="budget">Bajet sebulan (RM)</label>
         <div className="inline">
@@ -28,7 +28,7 @@ export function BudgetForm({ currentSen }: { currentSen: number | null }) {
           <button className="btn" type="submit" disabled={pending}>{pending ? 'Menyimpan…' : 'Simpan bajet'}</button>
         </div>
       </div>
-      <p aria-live="polite" className={msg?.ok ? 'soft small' : 'error'}>{msg?.text}</p>
+      <p aria-live="polite" className={msg?.ok ? 'soft small' : 'error'} style={{ marginTop: 10 }}>{msg?.text}</p>
     </form>
   )
 }

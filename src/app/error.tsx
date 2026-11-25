@@ -2,12 +2,10 @@
 
 export default function ErrorPage({ reset }: { error: Error; reset: () => void }) {
   return (
-    <main className="paper">
-      <div className="row"><span className="m" /><h1 className="t">Tak dapat muatkan data</h1><span /></div>
-      <div className="row"><span className="m" /><span className="t soft">Semak sambungan internet, kemudian cuba lagi.</span><span /></div>
-      <div className="indent" style={{ marginTop: 16 }}>
-        <button className="btn" onClick={reset}>Cuba lagi</button>
-      </div>
+    <main className="app">
+      <div className="page-head"><h1>Tak dapat muatkan data</h1></div>
+      <p className="empty">Semak sambungan internet, kemudian cuba lagi.</p>
+      <div style={{ margin: '16px 20px' }}><button className="btn" onClick={reset}>Cuba lagi</button></div>
     </main>
   )
 }
