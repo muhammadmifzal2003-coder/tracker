@@ -15,3 +15,15 @@ export const dayLabel = (ymd: string) => { const p = parts(ymd); return `${DAYS[
 export const marginDate = (ymd: string) => { const p = parts(ymd); return `${p.d}/${p.m}` }
 /** Ringgit without the RM prefix, for ledger columns: "1,234.50" */
 export const plainAmount = (sen: number) => `${Math.floor(sen / 100).toLocaleString('en-MY')}.${String(sen % 100).padStart(2, '0')}`
+
+/** "Hari ini", "Semalam", "20 Nov", or "20 Nov 2025" for another year. */
+export function relativeDay(ymd: string, todayYmd: string): string {
+  const day = Date.parse(`${ymd}T00:00:00Z`)
+  const today = Date.parse(`${todayYmd}T00:00:00Z`)
+  const diff = Math.round((today - day) / 86_400_000)
+  if (diff === 0) return 'Hari ini'
+  if (diff === 1) return 'Semalam'
+  const p = parts(ymd)
+  const short = `${p.d} ${SHORT[p.m - 1]}`
+  return p.y === parts(todayYmd).y ? short : `${short} ${p.y}`
+}

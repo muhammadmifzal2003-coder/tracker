@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useRef, useState, useTransition } from 'react'
 import { addExpense, deleteExpense, updateExpense } from '@/app/actions/expenses'
 import type { Category, Expense } from '@/lib/core'
+import { categoryStyle } from '@/lib/category-style'
 import { todayKL } from '@/lib/periods'
 import { safeAction } from '@/lib/safe-action'
 
@@ -108,11 +109,15 @@ export function ExpenseSheet({ categories, expense, trigger, triggerClassName, t
 
           <fieldset className="chips">
             <legend className="sr-only">Kategori</legend>
-            {categories.map((c) => (
-              <button type="button" key={c.id} aria-pressed={categoryId === c.id} onClick={() => setCategoryId(c.id)}>
-                {c.name}
-              </button>
-            ))}
+            {categories.map((c) => {
+              const st = categoryStyle(c.name)
+              return (
+                <button type="button" key={c.id} aria-pressed={categoryId === c.id} onClick={() => setCategoryId(c.id)}
+                  style={{ '--tint': st.tint } as React.CSSProperties}>
+                  <span aria-hidden>{st.icon}</span>{c.name}
+                </button>
+              )
+            })}
           </fieldset>
 
           <div className="fields">

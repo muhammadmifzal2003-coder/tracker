@@ -9,16 +9,16 @@ export const dynamic = 'force-dynamic'
 export default async function SettingsPage() {
   const [categories, budgetSen] = await Promise.all([listCategories(), getBudget()])
   return (
-    <main className="paper">
-      <div className="row"><span className="m" /><h1 className="t">Tetapan</h1><span /></div>
+    <main className="app">
+      <div className="page-head"><h1>Tetapan</h1></div>
 
-      <div className="row"><span className="m" /><h2 className="t">Bajet bulanan</h2><span /></div>
+      <h2 className="section-title">Bajet bulanan</h2>
       <BudgetForm currentSen={budgetSen} />
 
-      <div className="row"><span className="m" /><h2 className="t">Kategori</h2><span /></div>
+      <h2 className="section-title">Kategori</h2>
       <CategoryManager categories={categories} />
 
-      <form action={signOut} className="indent" style={{ marginTop: 32 }}>
+      <form action={signOut} style={{ margin: '28px 16px 0' }}>
         <button className="btn btn-ghost" type="submit">Log keluar</button>
       </form>
 

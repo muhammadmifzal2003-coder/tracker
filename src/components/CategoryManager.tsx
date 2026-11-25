@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import { useState, useTransition } from 'react'
 import { addCategory, deleteCategory, moveExpensesAndDelete } from '@/app/actions/categories'
 import type { ActionResult, Category } from '@/lib/core'
+import { categoryStyle } from '@/lib/category-style'
 import { safeAction } from '@/lib/safe-action'
 
 export function CategoryManager({ categories }: { categories: Category[] }) {
@@ -44,21 +45,24 @@ export function CategoryManager({ categories }: { categories: Category[] }) {
   }
 
   return (
-    <div className="settings-block">
+    <div className="card card-pad">
       <ul className="plain">
-        {categories.map((c) => (
-          <li key={c.id} className="row">
-            <span className="m" />
-            <span className="t">{c.name}</span>
-            <button className="a btn-link btn-danger small" onClick={() => remove(c)} disabled={pending} aria-label={`Padam kategori ${c.name}`}>
-              Padam
-            </button>
-          </li>
-        ))}
+        {categories.map((c) => {
+          const st = categoryStyle(c.name)
+          return (
+            <li key={c.id} className="setting-row">
+              <span className="icon-box" style={{ '--tint': st.tint } as React.CSSProperties} aria-hidden>{st.icon}</span>
+              <span className="name">{c.name}</span>
+              <button className="btn-link btn-danger small" onClick={() => remove(c)} disabled={pending} aria-label={`Padam kategori ${c.name}`}>
+                Padam
+              </button>
+            </li>
+          )
+        })}
       </ul>
 
       {inUse && (
-        <div className="indent move-box" role="alertdialog" aria-labelledby="move-title">
+        <div className="move-box" role="alertdialog" aria-labelledby="move-title">
           <p id="move-title" className="notice">
             &ldquo;{inUse.name}&rdquo; masih ada perbelanjaan. Pindahkan ke kategori lain dahulu, kemudian ia akan dipadam.
           </p>
@@ -73,12 +77,12 @@ export function CategoryManager({ categories }: { categories: Category[] }) {
         </div>
       )}
 
-      <form key={formKey} action={add} className="indent field inline" style={{ marginTop: 16 }}>
+      <form key={formKey} action={add} className="field inline" style={{ marginTop: 14 }}>
         <label htmlFor="new-cat" className="sr-only">Nama kategori baru</label>
         <input id="new-cat" name="name" maxLength={40} required placeholder="Kategori baru" />
         <button className="btn btn-ghost" type="submit" disabled={pending}>Tambah</button>
       </form>
-      <p aria-live="polite" className="error indent" style={{ marginTop: 8 }}>{error}</p>
+      <p aria-live="polite" className="error" style={{ marginTop: 8 }}>{error}</p>
     </div>
   )
 }
